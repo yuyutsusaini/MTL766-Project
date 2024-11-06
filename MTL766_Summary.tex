@@ -1,0 +1,253 @@
+\documentclass[11pt]{article}
+\usepackage[english]{babel}
+\usepackage{minted}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{dirtytalk}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[toc,acronym,nopostdot,nonumberlist]{glossaries}
+\usepackage{titling}
+\usepackage{tikzpagenodes}
+\usepackage{booktabs}
+\usepackage[ddmmyyyy]{datetime}
+\usepackage[left=25mm, top=25mm, bottom=30mm, right=25mm]{geometry}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=cyan]{hyperref}
+\usepackage[style=authoryear-ibid,backend=biber,maxbibnames=99,maxcitenames=2,uniquelist=false,isbn=false,url=true,eprint=false,doi=true,giveninits=true,uniquename=init]{biblatex}
+\usepackage{multicol}
+\makeglossaries
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=C,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\large\ttfamily},
+  numbers=none,
+  numberstyle=\large\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4
+}
+\begin{document}
+\pagenumbering{roman}
+\begin{titlepage}
+\begin{tikzpicture}[remember picture,overlay,shift={(current page.center)}]
+\node[anchor=center,xshift=0.3cm,yshift=9cm]
+{\includegraphics[scale=0.5]{iitd_logo.png}};
+% \node[anchor=center,xshift=7cm,yshift=-12cm]{\includegraphics[scale=0.2]{figs/cispa_logo.pdf}};
+\end{tikzpicture}
+
+\centering
+\vspace{7cm}
+\huge Project : Multivariate Analysis of Spotify most streamed Songs\\ 
+\vspace{2cm}
+\Large a summary report authored by\\ 
+
+\LARGE Yuyutsu Saini\\
+\vspace{1mm}
+\Large 2020MT60571\\
+\vspace{2cm}
+\Large supervised by\\
+\Large Prof. Rahul Singh\\
+\vspace{2cm}
+\newdateformat{startdate}{\THEDAY\ \monthname[\THEMONTH], \THEYEAR}
+\newdateformat{enddate}{\THEDAY\ \monthname[\THEMONTH], \THEYEAR}
+\Large \today \\
+\vspace{2cm}
+\LARGE MTL766 : Multivariate Statistic
+
+\end{titlepage}
+
+\tableofcontents
+\section{Introduction}
+The objective of this analysis was to perform a multivariate analysis on two datasets containing attributes related to user purchases and loyalty scores. Various statistical tests, regression models, and dimensionality reduction techniques were employed to uncover insights from the data.
+
+\section{Dataset Description}
+The datasets consist of user-level data with attributes such as `age`, `annual\_income`, `purchase\_amount`, `loyalty\_score`, and `purchase\_frequency`. The two datasets represent different regions: North-East and South-West.
+
+\section{Exploratory Data Analysis}
+\textbf{Observations:}
+\begin{itemize}
+    \item The pairwise relationships between attributes show a strong correlation, suggesting interdependency among the variables.
+\end{itemize}
+\textbf{Conclusion:}
+\begin{itemize}
+    \item All attributes in both datasets are highly correlated, indicating that they are likely to influence each other.
+\end{itemize}
+
+\subsection{Comparison of Covariance Matrices}
+
+\subsubsection{Box M Test}
+The Box M test is used to test the hypothesis that the covariance matrices of two or more groups are equal. A small p-value indicates that the covariance matrices are significantly different.
+
+\textbf{Test Statistic:} 
+\[
+M = 100.776012
+\]
+
+\textbf{Degree of Freedom:}
+\[
+df = 15
+\]
+
+\textbf{P-value:} 
+\[
+p = 9.297145 \times 10^{-15}
+\]
+
+\textbf{Conclusion:}
+The p-value is extremely small, indicating that we reject the null hypothesis that the covariance matrices are equal. Therefore, we conclude that the covariance matrices of the two datasets are significantly different.
+
+\subsubsection{Likelihood Ratio Test}
+The Likelihood Ratio Test is used to compare the fit of two models, typically a restricted and an unrestricted model. In this case, it tests the equality of covariance matrices between two datasets.
+
+\textbf{Test Statistic:} 
+\[
+\Lambda = 3.499576610159108 \times 10^{-23}
+\]
+
+\textbf{Degree of Freedom:}
+\[
+df = 13
+\]
+
+\textbf{P-value:}
+\[
+p = 3.330669 \times 10^{-16}
+\]
+
+\textbf{Conclusion:}
+Given the very small p-value, we reject the null hypothesis that the covariance matrices are equal. This indicates that there is a significant difference in the covariance structures of the two datasets.
+
+
+\subsection{Comparison of Mean}
+
+\subsubsection{Welch's t-test}
+
+Welch's t-test was performed to compare the means of the two datasets for each attribute, with the results provided below:
+
+\begin{itemize}
+    \item \textbf{Age:} t-statistic = -0.8109, p-value = 0.4643
+    \item \textbf{Annual Income:} t-statistic = -0.0414, p-value = 0.9690
+    \item \textbf{Purchase Amount:} t-statistic = 0.0898, p-value = 0.9329
+    \item \textbf{Loyalty Score:} t-statistic = 0.1208, p-value = 0.9108
+    \item \textbf{Purchase Frequency:} t-statistic = 0.2500, p-value = 0.8194
+\end{itemize}
+
+\textbf{Conclusion:}
+Since the p-values for all the attributes are greater than 0.05, we fail to reject the null hypothesis for each attribute. This suggests that there is no significant difference between the means of the two datasets for any of the attributes.
+
+
+\subsubsection{James' Test}
+James' test is used to compare the means of two datasets when the variances of the datasets may differ. It is based on a generalized form of the F-statistic and is used to detect whether the means of the two datasets are significantly different.
+
+\textbf{Test Statistic:}
+\[
+\text{James' Test Statistic} = 78.5758
+\]
+
+\textbf{Critical F-value:}
+\[
+F_{critical} = 8.7901
+\]
+
+\textbf{P-value:}
+\[
+p = 0.0020
+\]
+
+\textbf{Conclusion:}
+The p-value is less than 0.05, indicating that we reject the null hypothesis. This suggests that the means of the two datasets are significantly different, and there is strong evidence to support this conclusion.
+
+
+\section{Outlier Detection using Mahalanobis Distance}
+\textbf{Observations:}
+\begin{itemize}
+    \item 8 outliers were detected in Dataset 1, and 24 outliers were detected in Dataset 2 using Mahalanobis distance.
+\end{itemize}
+\textbf{Conclusion:}
+\begin{itemize}
+    \item A significant number of outliers were identified, suggesting anomalies in the datasets.
+\end{itemize}
+
+\subsection{Principal Component Analysis (PCA)}
+
+Principal Component Analysis (PCA) is a dimensionality reduction technique that transforms the data into a new coordinate system, where the first few components retain most of the variance in the data. In this analysis, PCA was applied to reduce the dimensionality of the dataset.
+
+\textbf{Eigenvalues:}
+\[
+\lambda_1 = 4.9398, \quad \lambda_2 = 0.0256, \quad \lambda_3 = 0.0035, \quad \lambda_4 = 0.0182, \quad \lambda_5 = 0.0129
+\]
+
+\textbf{Observations:}
+\begin{itemize}
+    \item The first eigenvalue (\( \lambda_1 = 4.9398 \)) is significantly larger than the others, indicating that the first principal component captures the most variance in the data.
+    \item The remaining eigenvalues are much smaller, suggesting that the remaining components explain much less variance.
+    \item This supports the finding that the attributes are strongly correlated, as the first few components explain most of the variance in the dataset.
+\end{itemize}
+
+\textbf{Conclusion:}
+\begin{itemize}
+    \item PCA was effective in reducing the dimensionality while retaining most of the variance in the dataset. The high eigenvalue for the first component indicates that a single component can capture most of the data's information.
+\end{itemize}
+
+
+\subsection{Linear Regression}
+
+Linear regression is used to model the relationship between a dependent variable and one or more independent variables. In this analysis, we performed linear regression for various pairs of attributes in the dataset.
+
+\textbf{R² Values for Regression:}
+\[
+R^2(\text{Age vs Purchase Amount}) = 0.9725
+\]
+\[
+R^2(\text{Age vs Annual Income}) = 0.9503
+\]
+\[
+R^2(\text{Age vs Loyalty Score}) = 0.9640
+\]
+
+
+\textbf{Observations:}
+\begin{itemize}
+    \item The R² values are very high, indicating that the linear models explain a large proportion of the variance in the data.
+    \item Specifically, the regression model between Age and Purchase Amount has the highest R² value (\(R^2 = 0.9725\)), suggesting a very strong linear relationship between these two variables.
+    \item All the models show a good fit, with R² values above 0.95, indicating that the linear regression models can predict these attributes with high accuracy.
+\end{itemize}
+
+\textbf{Conclusion:}
+\begin{itemize}
+    \item Linear regression has shown to be an effective model for explaining the relationships between Age and other attributes like Purchase Amount, Annual Income, and Loyalty Score, with high R² values.
+\end{itemize}
+
+
+\section{Softmax Regression for Region Classification}
+\textbf{Observations:}
+\begin{itemize}
+    \item The softmax regression model achieved an accuracy of 43.28%, suggesting that there is no clear linear boundary between the regions in the dataset.
+\end{itemize}
+\textbf{Conclusion:}
+\begin{itemize}
+    \item The softmax model's low accuracy reflects the complexity of the dataset and the lack of linear separability.
+\end{itemize}
+
+\section{Conclusion}
+\begin{itemize}
+    \item The datasets exhibit strong correlations between the attributes, confirming interdependence.
+    \item The Box M test and Likelihood Ratio Test both rejected the null hypothesis, indicating significant differences in covariance and means between the datasets.
+    \item Outlier detection identified several anomalies in both datasets.
+    \item PCA effectively reduced the dimensionality while retaining most of the variance, confirming the high correlation between attributes.
+    \item The linear regression models demonstrated strong predictive power for certain attributes.
+    \item The softmax regression model showed low accuracy, reflecting the complexity and lack of linear separability in the data.
+\end{itemize}
+\end{document}
