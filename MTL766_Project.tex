@@ -1,0 +1,701 @@
+\documentclass[11pt]{article}
+\usepackage[english]{babel}
+\usepackage{minted}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{dirtytalk}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[toc,acronym,nopostdot,nonumberlist]{glossaries}
+\usepackage{titling}
+\usepackage{tikzpagenodes}
+\usepackage{booktabs}
+\usepackage[ddmmyyyy]{datetime}
+\usepackage[left=25mm, top=25mm, bottom=30mm, right=25mm]{geometry}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=cyan]{hyperref}
+\usepackage[style=authoryear-ibid,backend=biber,maxbibnames=99,maxcitenames=2,uniquelist=false,isbn=false,url=true,eprint=false,doi=true,giveninits=true,uniquename=init]{biblatex}
+\usepackage{multicol}
+\makeglossaries
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=C,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\large\ttfamily},
+  numbers=none,
+  numberstyle=\large\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4
+}
+\begin{document}
+\pagenumbering{roman}
+\begin{titlepage}
+\begin{tikzpicture}[remember picture,overlay,shift={(current page.center)}]
+\node[anchor=center,xshift=0.3cm,yshift=9cm]
+{\includegraphics[scale=0.5]{iitd_logo.png}};
+% \node[anchor=center,xshift=7cm,yshift=-12cm]{\includegraphics[scale=0.2]{figs/cispa_logo.pdf}};
+\end{tikzpicture}
+
+\centering
+\vspace{7cm}
+\huge Project : Multivariate Analysis of Spotify most streamed Songs\\ 
+\vspace{2cm}
+\Large a report authored by\\ 
+
+\LARGE Yuyutsu Saini\\
+\vspace{1mm}
+\Large 2020MT60571\\
+\vspace{2cm}
+\Large supervised by\\
+\Large Prof. Rahul Singh\\
+\vspace{2cm}
+\newdateformat{startdate}{\THEDAY\ \monthname[\THEMONTH], \THEYEAR}
+\newdateformat{enddate}{\THEDAY\ \monthname[\THEMONTH], \THEYEAR}
+\Large \today \\
+\vspace{2cm}
+\LARGE MTL766 : Multivariate Statistic
+
+\end{titlepage}
+
+\tableofcontents
+\section{Introduction}
+
+The dataset analyzed in this project encompasses user behavior and demographic information, providing a basis to study purchasing patterns across a diverse population. By examining attributes like age, annual income, purchase amount, and loyalty score, this analysis aims to reveal insights into factors driving customer loyalty and purchase frequency. Additionally, understanding the regional distribution of users allows for examining any geographical trends in purchasing behavior. This multivariate analysis will leverage statistical techniques to uncover relationships, detect outliers, and reduce dimensionality, offering a concise summary of user profiles and purchasing dynamics.
+
+\begin{itemize}
+    \item \textbf{Dataset}: Composed of user demographic and purchasing behavior data, with 238 observations.
+    \item \textbf{Purpose}: To analyze factors contributing to customer loyalty and purchasing frequency.
+    \item \textbf{Relevance}: Insights may inform targeted marketing strategies and customer retention efforts.
+    \item \textbf{Key Attributes}: 
+    \begin{itemize}
+        \item \textbf{Demographics}: age, region, annual\_income.
+        \item \textbf{Behavior}: purchase\_amount, loyalty\_score, purchase\_frequency.
+    \end{itemize}
+    \item \textbf{Objectives}: To apply multivariate techniques, including EDA, covariance testing, and PCA, to explore and summarize customer profiles effectively.
+\end{itemize}
+\section{Dataset Description}
+\begin{itemize}
+    \item \textbf{Total Observations}: The dataset contains 238 entries, divided into two main regions for focused analysis:
+    \begin{itemize}
+        \item \textbf{North East Region}: 84 observations (includes North and East regions).
+        \item \textbf{South West Region}: 154 observations (includes South and West regions).
+    \end{itemize}
+    \item \textbf{Features}: The dataset includes 7 features:
+    \begin{itemize}
+        \item \textbf{Numerical Features} (5): \textit{age}, \textit{annual\_income}, \textit{purchase\_amount}, \textit{loyalty\_score}, and \textit{purchase\_frequency}.
+        \item \textbf{Categorical Features} (2): \textit{user\_id} and \textit{region}.
+    \end{itemize}
+    \item \textbf{Region Distribution}:
+    \begin{itemize}
+        \item \textbf{North}: 78 users
+        \item \textbf{South}: 77 users
+        \item \textbf{West}: 77 users
+        \item \textbf{East}: 6 users
+    \end{itemize}
+    \item \textbf{Segregation Rationale}: The dataset is divided into North East (North + East) and South West (South + West) regions to facilitate intra- and inter-regional comparisons and to identify specific purchase and loyalty patterns.
+\end{itemize}
+\section{Exploratory Data Analysis}
+Table \ref{tab:summary_statistics} presents the descriptive statistics for each attribute in the customer dataset, including measures of central tendency, dispersion, and range.
+\begin{table}[H]
+    \centering
+    \caption{Summary Statistics of Customer Data}
+    \begin{tabular}{lcccccc}
+        \hline
+        \textbf{Statistic} & \textbf{user\_id} & \textbf{age} & \textbf{annual\_income} & \textbf{purchase\_amount} & \textbf{loyalty\_score} & \textbf{purchase\_frequency} \\
+        \hline
+        Count & 238 & 238 & 238 & 238 & 238 & 238 \\
+        Mean & 119.50 & 38.68 & 57407.56 & 425.63 & 6.79 & 19.80 \\
+        Std & 68.85 & 9.35 & 11403.88 & 140.05 & 1.90 & 4.56 \\
+        Min & 1.00 & 22.00 & 30000.00 & 150.00 & 3.00 & 10.00 \\
+        25\% & 60.25 & 31.00 & 50000.00 & 320.00 & 5.50 & 17.00 \\
+        50\% & 119.50 & 39.00 & 59000.00 & 440.00 & 7.00 & 20.00 \\
+        75\% & 178.75 & 46.75 & 66750.00 & 527.50 & 8.28 & 23.00 \\
+        Max & 238.00 & 55.00 & 75000.00 & 640.00 & 9.50 & 28.00 \\
+        \hline
+    \end{tabular}
+    \label{tab:summary_statistics}
+\end{table}
+\newpage
+\subsection{Relationship Between All Attributes}
+The plot below shows a pairwise plot illustrating the relationships between all attributes in the dataset.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{relation.png}
+    \caption{The Relationship Between All Attributes in the Data}
+    \label{fig:relation}
+\end{figure}
+\subsection{Correlation of Both datasets}
+The following figure displays two plots representing the correlation matrices for each dataset, corresponding to the North-East and South-West regions.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{corr1.png}
+        \caption{Correlation Plot 1}
+        \label{fig:corr1}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{corr2.png}
+        \caption{Correlation Plot 2}
+        \label{fig:corr2}
+    \end{subfigure}
+    \caption{Comparison of Correlation Plots}
+    \label{fig:correlation_plots}
+\end{figure}
+\subsubsection{Observation}
+Based on the relationship between all attributes in the data table and the correlation matrix, we can draw the following observations:
+
+\begin{itemize}
+    \item All attributes in the dataset appear to be strongly correlated with each other, indicating possible relationships or dependencies between these attributes.
+    \item The `user\_id` attribute stands out as a unique identifier for each entry in the dataset. It is not correlated with any other attribute, highlighting its role solely as an identifier.
+    \item The strong correlations suggest that certain attributes may share underlying patterns or influence each other, which could be relevant for predictive modeling or clustering tasks.
+    \item Future analysis could focus on understanding the causal relationships or exploring feature reduction techniques to address potential multicollinearity.
+\end{itemize}
+\section{Comparison of Covariance Matrices}
+\subsection{Box M's Test}
+Box's M test is a statistical test used to determine if multiple groups have equal covariance matrices. This test is commonly used to check the assumption of homogeneity of variances, which is important in multivariate analyses like discriminant analysis and MANOVA.
+
+\subsubsection{Purpose of Box's M Test}
+The primary purpose of Box's M test is to assess whether the variance-covariance matrices of different groups are significantly different from each other. A small p-value (typically less than 0.05) suggests that there are significant differences in the covariance matrices, meaning that the assumption of homogeneity of variances may not hold.
+
+\subsubsection{How to Perform Box's M Test}
+To perform Box's M test:
+\begin{enumerate}
+    \item Compute the pooled covariance matrix by averaging the covariance matrices of each group, weighted by the sample sizes.
+    \item Calculate the determinant of each group’s covariance matrix as well as the determinant of the pooled covariance matrix.
+    \item Use these determinants to compute the Box's M statistic using the formula below.
+    \item Apply a correction factor to adjust for sample size differences and calculate the degrees of freedom for interpreting the Box's M statistic.
+\end{enumerate}
+
+\subsubsection{Equation for Box's M Test}
+The Box's M statistic is calculated as follows:
+
+\[
+M = (N - g) \cdot \ln \left( \det \mathbf{S}_{\text{pooled}} \right) - \sum_{i=1}^{g} (n_i - 1) \cdot \ln \left( \det \mathbf{S}_i \right)
+\]
+
+where:
+\begin{itemize}
+    \item \( N \) is the total sample size,
+    \item \( g \) is the number of groups,
+    \item \( n_i \) is the sample size of group \( i \),
+    \item \( \mathbf{S}_{\text{pooled}} \) is the pooled covariance matrix,
+    \item \( \mathbf{S}_i \) is the covariance matrix of group \( i \),
+    \item \( \det \) represents the determinant of a matrix.
+\end{itemize}
+
+\subsubsection{Correction Factor}
+The correction factor is used to adjust the Box's M statistic for sample size differences between groups and is given by:
+
+\[
+\text{correction\_factor} = 1 - \frac{(2p^2 + 3p - 1)}{6(p + 1)(g - 1)} \left( \sum_{i=1}^{g} \frac{1}{n_i - 1} - \frac{1}{N - g} \right)
+\]
+
+where:
+\begin{itemize}
+    \item \( p \) is the number of variables,
+    \item \( k \) is the number of groups,
+    \item \( n_1 \) and \( n_2 \) are the sample sizes of the two groups.
+\end{itemize}
+
+\subsubsection{Degrees of Freedom}
+The degrees of freedom (dof) for Box's M test is calculated as:
+
+\[
+\text{dof} = \frac{p(p + 1)}{2} \cdot (k - 1)
+\]
+
+where:
+\begin{itemize}
+    \item \( p \) is the number of variables,
+    \item \( k \) is the number of groups.
+\end{itemize}
+
+\subsubsection{Calculating the p-value}
+To determine the significance of the Box's M statistic, use the chi-squared distribution with the calculated degrees of freedom:
+
+\[
+\text{df} = \frac{p(p + 1)}{2} \cdot (k - 1)
+\]
+
+The resulting p-value indicates whether the covariance matrices differ significantly. A small p-value (e.g., \( p < 0.05 \)) suggests that the assumption of homogeneity of variances is violated.
+\subsubsection{Box's M Test Results}
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|}
+    \hline
+    \textbf{Statistic} & \textbf{Value} \\
+    \hline
+    M Statistic & 100.776012 \\
+    \hline
+    Degrees of Freedom (for chi-square conversion) & 15 \\
+    \hline
+    P-value & \( 9.297145 \times 10^{-15} \) \\
+    \hline
+\end{tabular}
+\caption{Box's M Test Results}
+\end{table}
+\subsubsection{Observation}
+
+From the results of Box's M test, we observe that the p-value is extremely small (\(9.297145 \times 10^{-15}\)). This indicates strong evidence against the null hypothesis, which states that the covariance matrices of the groups are equal. Since the p-value is much smaller than the common significance level of 0.05, we reject the null hypothesis. 
+
+The rejection of the null hypothesis suggests that the covariance matrices of the different groups are significantly different from each other. Therefore, the assumption of homogeneity of variances does not hold, implying that the groups have unequal covariance structures.
+
+\subsection{Likelihood Ratio Test for Covariance Matrices}
+
+\subsubsection{Purpose of Likelihood Ratio Test}
+
+The Likelihood Ratio Test (LRT) is a statistical test used to compare the fit of two models: one under the null hypothesis and one under the alternative hypothesis. In the context of covariance matrices, the test is used to determine whether the covariance matrices of two datasets are equal. If the null hypothesis is rejected, it implies that the covariance matrices are significantly different between the two datasets.
+
+\subsubsection{How to Perform the Test}
+
+To perform the Likelihood Ratio Test for testing the equality of covariance matrices, we need the sample covariance matrices for the two datasets. The test is based on the ratio of the determinants of the covariance matrices, comparing the likelihood of the two models:
+
+1. Compute the sample covariance matrices \( S_1 \) and \( S_2 \) for the two datasets.
+2. Compute the pooled covariance matrix \( S_{\text{pooled}} \).
+3. Calculate the Likelihood Ratio Statistic \( \Lambda \).
+
+\subsubsection{Equation}
+
+The Likelihood Ratio statistic \( \Lambda \) is given by:
+
+\[
+\Lambda = \frac{\left| S_1 \right|^{n_1} \left| S_2 \right|^{n_2}}{\left| S_{\text{pooled}} \right|^{n_1 + n_2}}
+\]
+
+Where:
+- \( |S_1| \) and \( |S_2| \) are the determinants of the covariance matrices of the two groups.
+- \( |S_{\text{pooled}}| \) is the determinant of the pooled covariance matrix.
+- \( n_1 \) and \( n_2 \) are the sample sizes for the two datasets.
+
+The test statistic \( \Lambda \) follows a chi-square distribution under the null hypothesis. We calculate the transformed statistic \( -2 \ln(\Lambda) \), which follows a chi-square distribution with degrees of freedom:
+
+\[
+-2 \ln(\Lambda) \sim \chi^2_{df}
+\]
+
+\subsubsection{Degree of Freedom}
+
+The degrees of freedom \( df \) for the Likelihood Ratio Test are calculated as:
+
+\[
+df = \frac{p(p + 1)}{2}
+\]
+
+Where \( p \) is the number of variables (attributes) in the dataset.
+
+\subsubsection{Calculate P-value}
+
+To calculate the p-value, we compare the computed statistic \( -2 \ln(\Lambda) \) to the chi-square distribution with the corresponding degrees of freedom. The p-value represents the probability of obtaining a test statistic at least as extreme as the one calculated, assuming the null hypothesis is true.
+
+\subsubsection{Results}
+
+For this test, the computed results are as follows:
+
+\[
+\hat{\Lambda} = 3.499576610159108 \times 10^{-23}
+\]
+\[
+\text{Degrees of Freedom} = 13
+\]
+\[
+\text{P-value} = 3.330669 \times 10^{-16}
+\]
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|}
+    \hline
+    \textbf{Statistic} & \textbf{Value} \\
+    \hline
+    Wilks' Lambda (\(\hat{\Lambda}\)) & \( 3.499576610159108 \times 10^{-23} \) \\
+    \hline
+    Degrees of Freedom & 13 \\
+    \hline
+    P-value & \( 3.330669 \times 10^{-16} \) \\
+    \hline
+\end{tabular}
+\caption{Likelihood Ratio Test Results}
+\end{table}
+
+\subsubsection{Observation}
+
+From the results of the Likelihood Ratio Test, we observe that the p-value is extremely small (\( 3.330669 \times 10^{-16} \)). This provides strong evidence against the null hypothesis, which asserts that the covariance matrices of the two datasets are equal. Since the p-value is much smaller than the typical significance level of 0.05, we reject the null hypothesis.
+
+Thus, the rejection of the null hypothesis suggests that the covariance matrices of the two datasets are significantly different. Therefore, we conclude that the assumption of equal covariance matrices does not hold.
+
+\section{Comparison of Mean}
+\subsection{Welch's T-test for Equality of Means}
+
+\subsubsection{Purpose of Welch's T-test}
+
+The Welch’s T-test is a statistical test used to determine whether the means of two groups are significantly different from each other. Unlike the Student’s T-test, Welch’s T-test does not assume equal variances between the two groups, making it more suitable when the assumption of equal variances is violated. It is commonly used when comparing the means of two datasets, particularly when the sample sizes and variances are unequal.
+
+\subsubsection{How to Perform the Test}
+
+To perform Welch’s T-test for each attribute, the following steps are involved:
+
+1. Calculate the sample means \( \bar{X_1} \) and \( \bar{X_2} \), and the sample variances \( S_1^2 \) and \( S_2^2 \) for the two groups.
+2. Compute the test statistic for each attribute, which is given by the formula:
+
+\[
+t = \frac{\bar{X_1} - \bar{X_2}}{\sqrt{\frac{S_1^2}{n_1} + \frac{S_2^2}{n_2}}}
+\]
+
+Where:
+- \( \bar{X_1} \) and \( \bar{X_2} \) are the sample means of the two groups.
+- \( S_1^2 \) and \( S_2^2 \) are the sample variances of the two groups.
+- \( n_1 \) and \( n_2 \) are the sample sizes of the two groups.
+
+3. The degrees of freedom for Welch’s T-test are calculated as:
+
+\[
+df = \frac{\left( \frac{S_1^2}{n_1} + \frac{S_2^2}{n_2} \right)^2}{\frac{\left( \frac{S_1^2}{n_1} \right)^2}{n_1 - 1} + \frac{\left( \frac{S_2^2}{n_2} \right)^2}{n_2 - 1}}
+\]
+
+4. Compare the calculated t-statistic to the critical value from the t-distribution with the calculated degrees of freedom, and obtain the p-value.
+
+\subsubsection{Equation}
+
+The formula for the t-statistic is:
+
+\[
+t = \frac{\bar{X_1} - \bar{X_2}}{\sqrt{\frac{S_1^2}{n_1} + \frac{S_2^2}{n_2}}}
+\]
+
+The formula for degrees of freedom is:
+
+\[
+df = \frac{\left( \frac{S_1^2}{n_1} + \frac{S_2^2}{n_2} \right)^2}{\frac{\left( \frac{S_1^2}{n_1} \right)^2}{n_1 - 1} + \frac{\left( \frac{S_2^2}{n_2} \right)^2}{n_2 - 1}}
+\]
+
+\subsubsection{Calculate P-value}
+
+The p-value is calculated by comparing the calculated t-statistic with the t-distribution with the corresponding degrees of freedom. The p-value indicates the probability of obtaining a t-statistic at least as extreme as the one calculated, assuming the null hypothesis (that the means are equal) is true.
+
+\subsubsection{Results}
+
+For each attribute, the t-statistic and p-value are as follows:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|}
+    \hline
+    \textbf{Attribute} & \textbf{T-statistic} & \textbf{P-value} \\
+    \hline
+    Age & -0.8109 & 0.4643 \\
+    \hline
+    Annual Income & -0.0414 & 0.9690 \\
+    \hline
+    Purchase Amount & 0.0898 & 0.9329 \\
+    \hline
+    Loyalty Score & 0.1208 & 0.9108 \\
+    \hline
+    Purchase Frequency & 0.2500 & 0.8194 \\
+    \hline
+\end{tabular}
+\caption{Results of Welch's T-test for each Attribute}
+\end{table}
+
+\subsubsection{Observation}
+
+From the results of the Welch's T-test, we observe that the p-values for all attributes are significantly greater than the typical significance level of 0.05. Specifically, the p-values range from 0.4643 (for Age) to 0.9690 (for Annual Income). Since all the p-values are greater than 0.05, we fail to reject the null hypothesis for all attributes.
+
+Therefore, we conclude that there is no significant difference in the means of the two datasets for any of the attributes tested. The assumption that the means of the attributes are equal cannot be rejected based on the data.
+
+\subsection{James's Test for Comparison of Means}
+
+\subsubsection{Purpose of James's Test}
+
+James’s Test is used to compare the means of two groups when the covariance matrices are assumed to be unequal. It is particularly useful when the sample sizes are small and the assumption of equal covariance matrices is questionable. The test statistic is a quadratic form involving the difference between the sample means, weighted by the inverse of the covariance matrices, and follows an approximate F-distribution under the null hypothesis.
+
+\subsubsection{How to Perform James's Test}
+
+To perform James’s test, follow these steps:
+
+1. Compute the difference between the means of the two groups, denoted by \( \bar{x}_1 \) and \( \bar{x}_2 \), as \( \Delta \bar{x} = \bar{x}_1 - \bar{x}_2 \).
+
+2. Compute the pooled covariance matrix or the individual covariance matrices \( S_1 \) and \( S_2 \) for each group.
+
+3. Calculate the James's Test Statistic using the formula:
+
+   \[
+   J = (\Delta \bar{x})^T \left( S_1 \frac{1}{n_1} + S_2 \frac{1}{n_2} \right)^{-1} (\Delta \bar{x})
+   \]
+   
+   Where:
+   - \( \Delta \bar{x} = \bar{x}_1 - \bar{x}_2 \) is the difference between the sample means.
+   - \( S_1 \) and \( S_2 \) are the covariance matrices for the two groups.
+   - \( n_1 \) and \( n_2 \) are the sample sizes of the two groups.
+   
+4. Calculate the critical F-value using the F-distribution with degrees of freedom based on the number of variables and the sample sizes.
+
+5. Compute the p-value by comparing the test statistic to the critical F-value. A p-value smaller than the chosen significance level (typically 0.05) indicates rejection of the null hypothesis.
+
+\subsubsection{Equation}
+
+The formula for James’s test statistic is:
+
+\[
+J = (\bar{x}_1 - \bar{x}_2)^T \left( S_1 \frac{1}{n_1} + S_2 \frac{1}{n_2} \right)^{-1} (\bar{x}_1 - \bar{x}_2)
+\]
+
+Where:
+- \( \bar{x}_1 \) and \( \bar{x}_2 \) are the sample means of the two groups.
+- \( S_1 \) and \( S_2 \) are the covariance matrices for each group.
+- \( n_1 \) and \( n_2 \) are the sample sizes of each group.
+
+\subsubsection{Calculate P-value}
+
+The p-value for James's test is obtained by comparing the test statistic to the critical F-value. If the calculated test statistic exceeds the critical value, the p-value will be smaller than the significance level, leading to the rejection of the null hypothesis.
+
+\subsubsection{Results}
+
+For the given data, the results of James's test are as follows:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|}
+    \hline
+    \textbf{Test Statistic} & \textbf{Value} \\
+    \hline
+    James's Test Statistic & 78.5758 \\
+    \hline
+    Critical F-value & 8.7901 \\
+    \hline
+    P-value & 0.0020 \\
+    \hline
+\end{tabular}
+\caption{James's Test Results}
+\end{table}
+
+\subsubsection{Observation}
+
+The calculated James's test statistic is 78.5758, which is significantly greater than the critical F-value of 8.7901. Additionally, the p-value of 0.0020 is less than the typical significance level of 0.05. Therefore, we reject the null hypothesis and conclude that the means of the two datasets are significantly different.
+
+\section{Outlier Detection using Mahalanobis Distance}
+
+\subsection{Mahalanobis Distance}
+
+Mahalanobis Distance is a multivariate measure that quantifies the distance of a data point from the mean of a distribution, considering the correlation of the dataset. Unlike Euclidean distance, which only takes into account the direct difference between points, Mahalanobis Distance accounts for the variance and covariance of the dataset.
+
+The formula for Mahalanobis distance is given by:
+
+\[
+D_M = \sqrt{(x - \mu)^T S^{-1} (x - \mu)}
+\]
+
+Where:
+- \( x \) is the data point.
+- \( \mu \) is the mean vector of the distribution.
+- \( S \) is the covariance matrix of the dataset.
+- \( S^{-1} \) is the inverse of the covariance matrix.
+
+This distance is particularly useful for identifying outliers in multivariate datasets. Points with a high Mahalanobis distance (often above a threshold, e.g., 3 or 4) are considered potential outliers, as they are far from the mean of the dataset when accounting for the covariance structure.
+
+\subsection{Procedure for Outlier Detection}
+
+To detect outliers using Mahalanobis Distance:
+\begin{enumerate}
+    \item \textbf{Compute the mean} and \textbf{covariance matrix} of the dataset.
+    \item \textbf{Calculate the Mahalanobis distance} for each data point.
+    \item \textbf{Identify outliers} by comparing each Mahalanobis distance to a threshold value, such as 3. Data points with a distance greater than the threshold are considered outliers.
+\end{enumerate}
+
+In our analysis, the number of outliers detected in the two datasets is as follows:
+\begin{itemize}
+    \item Number of Outliers in Dataset 1: 8
+    \item Number of Outliers in Dataset 2: 24
+\end{itemize}
+
+\subsection{Visualizing the Mahalanobis Distance}
+
+Below are the plots of the Mahalanobis distances for Dataset 1 and Dataset 2. The plots help visualize the distribution of distances, with outliers typically having higher values.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{maha1.png}
+    \caption{Mahalanobis Distance Plot for Dataset 1}
+    \label{fig:maha1}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{maha2.png}
+    \caption{Mahalanobis Distance Plot for Dataset 2}
+    \label{fig:maha2}
+\end{minipage}
+\end{figure}
+
+\section{Principal Component Analysis (PCA)}
+Principal Component Analysis (PCA) is a dimensionality reduction technique used to transform a dataset into a set of orthogonal components. These components capture the maximum variance in the data. The primary goal of PCA is to reduce the number of dimensions (features) while retaining as much information as possible. This is done by computing the eigenvectors (principal components) of the covariance matrix of the data.
+
+The eigenvalues associated with each principal component represent the amount of variance explained by that component. Larger eigenvalues indicate components that explain a higher proportion of the data's variance, while smaller eigenvalues indicate components with lesser variance.
+
+\subsection{PCA Plot and Eigenvalues}
+
+The following plot represents the first few principal components derived from the data. The eigenvalues for the principal components are as follows:
+
+\[
+\text{Eigenvalues:} \quad 4.9398, \quad 0.0256, \quad 0.0035, \quad 0.0182, \quad 0.0129
+\]
+
+These eigenvalues suggest that the first principal component captures the majority of the variance in the dataset, indicating that the data is highly correlated along this axis.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{pca.png}
+\caption{Principal Component Analysis (PCA) Plot}
+\label{fig:pca}
+\end{figure}
+
+\subsection{Observation}
+
+The large eigenvalue of 4.9398 for the first principal component indicates that a significant portion of the variance in the dataset is captured by this component. This is consistent with the earlier finding that the attributes in the dataset are strongly related, as most of the variability can be explained by a single dimension. The relatively small eigenvalues for the subsequent components (0.0256, 0.0035, 0.0182, and 0.0129) show that the remaining components capture very little additional variance, reinforcing the idea that the data is highly correlated along the first principal component.
+
+\subsection{Dimension Reduction Plots}
+Presented below are plots illustrating dimension reduction through PCA into 1D, 2D, and 3D spaces.
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.0\textwidth]{dim.png}
+\caption{Dimension Reduction using PCA into 1D, 2D, and 3D}
+\label{fig:dim_reduction}
+\end{figure}
+
+\section{Linear Regression}
+Linear regression is a statistical method used to model the relationship between a dependent variable and one or more independent variables. The goal is to fit a line that best represents the data, minimizing the difference between predicted and actual values. In the case of a single independent variable, the relationship can be expressed as:
+
+\[
+y = \beta_0 + \beta_1 x + \epsilon
+\]
+
+where:
+- \( y \) is the dependent variable.
+- \( x \) is the independent variable.
+- \( \beta_0 \) is the intercept.
+- \( \beta_1 \) is the slope of the line.
+- \( \epsilon \) is the error term.
+
+The quality of the fit is often measured by \( R^2 \), which indicates the proportion of the variance in the dependent variable that is predictable from the independent variable.
+
+\subsection{Gradient Descent for Linear Regression}
+
+To find the optimal values of \( \beta_0 \) and \( \beta_1 \), we can use gradient descent, an iterative optimization algorithm that minimizes the cost function (mean squared error in this case). The cost function for linear regression is:
+
+\[
+J(\beta_0, \beta_1) = \frac{1}{2m} \sum_{i=1}^{m} \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2
+\]
+
+The gradients for \( \beta_0 \) and \( \beta_1 \) are calculated as follows:
+
+\[
+\frac{\partial J}{\partial \beta_0} = -\frac{1}{m} \sum_{i=1}^{m} (y_i - \hat{y}_i)
+\]
+\[
+\frac{\partial J}{\partial \beta_1} = -\frac{1}{m} \sum_{i=1}^{m} (y_i - \hat{y}_i) x_i
+\]
+
+The parameters are then updated iteratively using a learning rate \( \alpha \):
+
+\[
+\beta_0 = \beta_0 - \alpha \frac{\partial J}{\partial \beta_0}, \quad \beta_1 = \beta_1 - \alpha \frac{\partial J}{\partial \beta_1}
+\]
+
+\subsection{\( R^2 \) Values for Age-based Regressions}
+
+The following table shows the \( R^2 \) values for linear regressions performed on Age against other variables.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Regression} & \textbf{\( R^2 \) Value} \\
+\hline
+Age vs Purchase Amount & 0.9725 \\
+Age vs Annual Income & 0.9503 \\
+Age vs Loyalty Score & 0.9640 \\
+\hline
+\end{tabular}
+\caption{\( R^2 \) values for Age-based Linear Regressions}
+\label{tab:R2_values}
+\end{table}
+
+\subsection{Regression Plots}
+
+Below are the plots of the linear regressions performed on Age versus Purchase Amount, Annual Income, and Loyalty Score.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.0\textwidth]{reg.png}
+\caption{Linear Regression Plot}
+\label{fig:reg}
+\end{figure}
+
+\section{Softmax Regression for Region Classification}
+
+\subsection{Model Training and Evaluation}
+To classify the regions into categories—North, South, East, and West—a softmax regression model was trained and tested on the same dataset. The resulting accuracy is as follows:
+
+\begin{center}
+\textbf{Accuracy:} 0.4328
+\end{center}
+
+\subsection{Analysis}
+The relatively low accuracy score of 43.28\% suggests that the model struggles to find a distinct linear boundary between the classes in this dataset. This outcome is expected, as the data likely lacks clear separability across the four regional categories.
+
+\subsection{Visualization of Results}
+The figures below illustrate the model’s performance:
+\begin{itemize}
+    \item \textbf{Actual Region Labels:} Displaying the true region labels in the dataset.
+    \item \textbf{Predicted Region Labels:} Showing the model's predicted labels based on the softmax regression results.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{actual.png}
+        \caption{Actual Region Labels}
+        \label{fig:actual}
+    \end{minipage}\hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{predict.png}
+        \caption{Predicted Region Labels}
+        \label{fig:predict}
+    \end{minipage}
+\end{figure}
+
+\subsection{Observation}
+From these plots, it is evident that there is no clear linear boundary separating the regions, which accounts for the model's limited accuracy. Softmax regression, which relies on linear decision boundaries, may not be suitable for effectively classifying this dataset, as it does not capture complex relationships within the data.
+\section{Conclusion}
+Based on the analysis of the datasets, the following key observations can be made:
+
+\begin{itemize}
+    \item The relationship between all attributes shows a strong correlation, indicating that the attributes are interdependent.
+    \item The Box M test results suggest that the null hypothesis, which assumes equal covariance matrices, is rejected, confirming significant differences in the covariance structures of the two datasets.
+    \item The Likelihood Ratio Test further supports this conclusion by indicating a significant difference between the datasets with a very low p-value.
+    \item Welch's T-Test indicates no significant difference in the means for the different attributes between the two datasets, as evidenced by the high p-values.
+    \item James's Test also rejects the null hypothesis, supporting the conclusion that the datasets have different means.
+    \item Outlier detection using Mahalanobis distance revealed 8 outliers in Dataset 1 and 24 in Dataset 2, indicating the presence of data points that are significantly different from the rest of the observations.
+    \item Principal Component Analysis (PCA) revealed that a small number of components explain most of the variance, confirming the high correlation between the attributes.
+    \item The softmax regression model performed with an accuracy of 43.28\%, suggesting that the data does not have clear linear separability for classification.
+    \item Linear regression models for predicting attributes such as Age, Purchase Amount, and Loyalty Score achieved high R² values, indicating strong relationships between the predictors and the outcomes.
+    \item Dimension reduction using PCA helped visualize the structure of the data in 1D, 2D, and 3D, highlighting the complexities of the dataset.
+\end{itemize}
+
+\end{document}
